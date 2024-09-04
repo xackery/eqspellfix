@@ -145,19 +145,19 @@ func Spell(path string) error {
 
 			calc, err := strconv.Atoi(records[i-16])
 			if err != nil {
-				fmt.Printf("calc line %d column %d: %w\n", lineNumber, i-16, err)
+				fmt.Printf("calc line %d column %d: %s\n", lineNumber, i-16, err)
 				calc = 0
 			}
 
 			base, err := strconv.Atoi(records[i-66])
 			if err != nil {
-				fmt.Printf("base line %d column %d: %w\n", lineNumber, i-60, err)
+				fmt.Printf("base line %d column %d: %s\n", lineNumber, i-60, err)
 				base = 0
 			}
 
 			max, err := strconv.Atoi(records[i-42])
 			if err != nil {
-				fmt.Printf("max line %d column %d: %w\n", lineNumber, i-42, err)
+				fmt.Printf("max line %d column %d: %s\n", lineNumber, i-42, err)
 				max = 0
 			}
 
