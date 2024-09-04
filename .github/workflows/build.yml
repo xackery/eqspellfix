@@ -19,6 +19,5 @@ jobs:
           prerelease: false
           title: "${{env.VERSION}}"
           files: |
-            bin/quail-linux
-            bin/quail.exe
-            bin/quail-darwin
+            bin/eqspellfix
+            bin/eqspellfix.exe
