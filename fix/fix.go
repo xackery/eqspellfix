@@ -44,38 +44,39 @@ func Spell(path string) error {
 			fmt.Printf("Number of columns: %d\n", columnCount)
 		}
 		if len(records) != columnCount {
-			return fmt.Errorf("line %d: expected %d columns, got %d", lineNumber, columnCount, len(records))
+			_, err = fmt.Fprintln(w, strings.Join(records, "^"))
+			if err != nil {
+				return fmt.Errorf("line %d: %w", lineNumber, err)
+			}
+			continue
+			//return fmt.Errorf("line %d: expected %d columns, got %d", lineNumber, columnCount, len(records))
 		}
 
-		spellType, err := strconv.Atoi(records[83])
-		if err != nil {
-			return fmt.Errorf("spellType line %d column %d: %w", lineNumber, 83, err)
-		}
+		spellType := tryParse(records[83], 0)
 		isGood := spellType > 0
 
 		name := records[1]
-		durationCalc, err := strconv.Atoi(records[17])
-		if err != nil {
-			return fmt.Errorf("durationCalc line %d column %d: %w", lineNumber, 18, err)
-		}
+		durationCalc := tryParse(records[17], 0)
 
 		lowestLevel := 255
 		for i := 104; i < 120; i++ {
-			level, err := strconv.Atoi(records[i])
-			if err != nil {
-				return fmt.Errorf("level line %d column %d: %w", lineNumber, i, err)
-			}
+			level := tryParse(records[i], 255)
 			if level > 0 && level < lowestLevel {
 				lowestLevel = level
 			}
 		}
 
+		if lowestLevel == 255 {
+			_, err = fmt.Fprintln(w, strings.Join(records, "^"))
+			if err != nil {
+				return fmt.Errorf("line %d: %w", lineNumber, err)
+			}
+			continue
+		}
+
 		records[1] += fmt.Sprintf(" lvl %d", lowestLevel)
 
-		durationCap, err := strconv.Atoi(records[18])
-		if err != nil {
-			return fmt.Errorf("durationCap line %d column %d: %w", lineNumber, 17, err)
-		}
+		durationCap := tryParse(records[18], 0)
 		ticks := spellDuration(durationCalc, durationCap, 60)
 		suffix := ""
 		if ticks > 0 {
@@ -103,10 +104,7 @@ func Spell(path string) error {
 			suffix += fmt.Sprintf(" %d%s", duration, durationUnit)
 		}
 
-		mana, err := strconv.Atoi(records[19])
-		if err != nil {
-			return fmt.Errorf("mana line %d column %d: %w", lineNumber, 19, err)
-		}
+		mana := tryParse(records[19], 0)
 
 		if mana > 0 {
 			records[1] += fmt.Sprintf(" %dm", mana)
@@ -143,23 +141,9 @@ func Spell(path string) error {
 
 		for i := 86; i < 99; i++ {
 
-			calc, err := strconv.Atoi(records[i-16])
-			if err != nil {
-				fmt.Printf("calc line %d column %d: %s\n", lineNumber, i-16, err)
-				calc = 0
-			}
-
-			base, err := strconv.Atoi(records[i-66])
-			if err != nil {
-				fmt.Printf("base line %d column %d: %s\n", lineNumber, i-60, err)
-				base = 0
-			}
-
-			max, err := strconv.Atoi(records[i-42])
-			if err != nil {
-				fmt.Printf("max line %d column %d: %s\n", lineNumber, i-42, err)
-				max = 0
-			}
+			calc := tryParse(records[i-16], 0)
+			base := tryParse(records[i-66], 0)
+			max := tryParse(records[i-42], 0)
 
 			if records[i] != "79" && records[i] != "0" {
 				continue
@@ -441,4 +425,12 @@ func abs(i int) int {
 		return -i
 	}
 	return i
+}
+
+func tryParse(line string, fallback int) int {
+	val, err := strconv.Atoi(line)
+	if err != nil {
+		return fallback
+	}
+	return val
 }
