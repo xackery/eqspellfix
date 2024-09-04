@@ -10,9 +10,7 @@ build: ## build quail for local OS and windows
 	go build main.go
 	-mv main bin/quail
 
-build-all: build-darwin build-windows build-linux build-windows-addon ## build all supported os's
-
-
+build-all: build-windows build-linux ## build all supported os's
 
 build-linux: ## build linux
 	@echo "build-linux: ${BUILD_VERSION}"
